@@ -25,7 +25,7 @@ class SearchFeatureApiImpl : SearchFeatureApi {
             startDestination = NavigationRoutes.RecipeList.route
         ){
             composable(route = NavigationRoutes.RecipeList.route){
-                val viewModel: RecipeListViewModel = hiltViewModel()
+                val viewModel = hiltViewModel<RecipeListViewModel>()
                 RecipeListScreen(viewModel = viewModel, navHostController = navHostController){mealId->
                     viewModel.onEvent(RecipeList.Event.GotoRecipeDetails(mealId))
                 }

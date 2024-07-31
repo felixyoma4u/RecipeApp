@@ -32,7 +32,9 @@ class RecipeListViewModel @Inject constructor(
 
     fun onEvent(event: RecipeList.Event) {
         when (event) {
-            is RecipeList.Event.SearchRecipe -> searchRecipe(event.q)
+            is RecipeList.Event.SearchRecipe -> {
+                searchRecipe(event.q)
+            }
             is RecipeList.Event.GotoRecipeDetails -> {
                 viewModelScope.launch {
                     _navigation.send(RecipeList.Navigation.GotoRecipeDetails(event.id))

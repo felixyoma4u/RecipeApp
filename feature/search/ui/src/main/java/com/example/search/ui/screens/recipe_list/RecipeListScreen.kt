@@ -26,6 +26,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,7 +42,9 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.common.navigation.NavigationRoutes
 import com.example.common.utils.UiText
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -56,11 +59,12 @@ fun RecipeListScreen(
         mutableStateOf("")
     }
     val lifeCycleOwner = LocalLifecycleOwner.current
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = viewModel.navigation){
+    LaunchedEffect(key1 = viewModel.navigation) {
         viewModel.navigation.flowWithLifecycle(lifeCycleOwner.lifecycle)
             .collectLatest {
-                when(it){
+                when (it) {
                     is RecipeList.Navigation.GotoRecipeDetails -> {
                         navHostController.navigate(NavigationRoutes.RecipeDetails.sendId(it.id))
                     }
@@ -78,7 +82,8 @@ fun RecipeListScreen(
                 },
                 value = query.value, onValueChange = {
                     query.value = it
-                    viewModel.onEvent(RecipeList.Event.SearchRecipe(query.value))
+                        viewModel.onEvent(RecipeList.Event.SearchRecipe(query.value))
+
                 },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -136,10 +141,12 @@ fun RecipeListScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        Column(modifier = Modifier
-                            .padding(vertical = 12.dp)
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)) {
+                        Column(
+                            modifier = Modifier
+                                .padding(vertical = 12.dp)
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        ) {
 
                             Text(text = it.strMeal, style = MaterialTheme.typography.bodyLarge)
                             Spacer(modifier = Modifier.height(12.dp))
@@ -161,7 +168,8 @@ fun RecipeListScreen(
                                                     .background(
                                                         color = Color.White,
                                                         shape = RoundedCornerShape(24.dp)
-                                                    ).clip(shape = RoundedCornerShape(24.dp))
+                                                    )
+                                                    .clip(shape = RoundedCornerShape(24.dp))
                                                     .border(
                                                         width = 1.dp,
                                                         color = Color.Black,
