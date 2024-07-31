@@ -11,7 +11,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
-const val BASE_URL = "https://api.github.com/"
+const val BASE_URL = "https://www.themealdb.com/"
 
 @InstallIn(SingletonComponent::class)
 @Module

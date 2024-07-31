@@ -8,13 +8,13 @@ import retrofit2.http.Query
 
 interface SearchApiService {
 
-    @GET("api/json/v1/1/search.php/")
+    @GET("api/json/v1/1/search.php")
     suspend fun getRecipe(
         @Query("s") s: String
     ): Response<RecipeResponse>
 
 
-    @GET("api/json/v1/1/lookup.php/")
+    @GET("api/json/v1/1/lookup.php")
     suspend fun getRecipeDetail(
         @Query("i") i: String
     ): Response<RecipeResponseDetail>
