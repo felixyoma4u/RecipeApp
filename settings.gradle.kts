@@ -19,6 +19,10 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Search Recipe App"
+rootProject.name = "My Recipe App"
 include(":app")
- 
+include(":common")
+include(":media_player")
+include(":feature:search:ui")
+include(":feature:search:data")
+include(":feature:search:domain")
