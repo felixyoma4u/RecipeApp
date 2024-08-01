@@ -1,5 +1,6 @@
 package com.example.search.ui.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -8,6 +9,10 @@ import androidx.navigation.navigation
 import com.example.common.navigation.FeatureApi
 import com.example.common.navigation.NavigationRoutes
 import com.example.common.navigation.NavigationSubGraphRoute
+import com.example.search.domain.model.RecipeDetails
+import com.example.search.ui.screens.recipe_details.Details
+import com.example.search.ui.screens.recipe_details.RecipeDetailScreen
+import com.example.search.ui.screens.recipe_details.RecipeDetailsViewModel
 import com.example.search.ui.screens.recipe_list.RecipeList
 import com.example.search.ui.screens.recipe_list.RecipeListScreen
 import com.example.search.ui.screens.recipe_list.RecipeListViewModel
@@ -21,18 +26,28 @@ class SearchFeatureApiImpl : SearchFeatureApi {
         navHostController: NavHostController
     ) {
         navGraphBuilder.navigation(
-            route =  NavigationSubGraphRoute.Search.route,
+            route = NavigationSubGraphRoute.Search.route,
             startDestination = NavigationRoutes.RecipeList.route
-        ){
-            composable(route = NavigationRoutes.RecipeList.route){
+        ) {
+            composable(route = NavigationRoutes.RecipeList.route) {
                 val viewModel = hiltViewModel<RecipeListViewModel>()
-                RecipeListScreen(viewModel = viewModel, navHostController = navHostController){mealId->
+                RecipeListScreen(
+                    viewModel = viewModel,
+                    navHostController = navHostController
+                ) { mealId ->
                     viewModel.onEvent(RecipeList.Event.GotoRecipeDetails(mealId))
                 }
             }
 
-            composable(route = NavigationRoutes.RecipeDetails.route){
-
+            composable(route = NavigationRoutes.RecipeDetails.route) {
+                val viewModel = hiltViewModel<RecipeDetailsViewModel>()
+                val mealId = it.arguments?.getString("id")
+                LaunchedEffect(key1 = mealId) {
+                    mealId?.let {
+                        viewModel.onEvent(Details.Event.FetchDetails(it))
+                    }
+                }
+                RecipeDetailScreen(viewModel = viewModel)
             }
         }
     }
