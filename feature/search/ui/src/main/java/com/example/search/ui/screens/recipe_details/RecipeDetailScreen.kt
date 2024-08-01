@@ -65,64 +65,64 @@ fun RecipeDetailScreen(modifier: Modifier = Modifier, viewModel: RecipeDetailsVi
             ) {
                 Text(text = uiState.value.error.getString())
             }
+        }
 
-            uiState.value.data?.let { recipeDetails ->
-                Column(
+        uiState.value.data?.let { recipeDetails ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+            ) {
+
+                AsyncImage(
+                    model = recipeDetails.strMealThumb,
+                    contentDescription = null,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                ) {
+                        .fillMaxWidth()
+                        .height(350.dp),
+                    contentScale = ContentScale.Crop
+                )
 
-                    AsyncImage(
-                        model = recipeDetails.strMealThumb,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(350.dp),
-                        contentScale = ContentScale.Crop
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = recipeDetails.strInstructions,
+                        style = MaterialTheme.typography.bodyMedium
                     )
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                    recipeDetails.ingredientsPairs.forEach {
+                        if (it.first.isNotEmpty() || it.second.isNotEmpty()){
 
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = recipeDetails.strInstructions,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
 
-                        recipeDetails.ingredientsPairs.forEach {
-                            if (it.first.isNotEmpty() || it.second.isNotEmpty()){
-
-                                Row(
+                                AsyncImage(
+                                    model = getIngredientImageUrl(it.first),
+                                    contentDescription = null,
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 12.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    AsyncImage(
-                                        model = getIngredientImageUrl(it.first),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(50.dp)
-                                            .background(color = Color.White, shape = CircleShape)
-                                            .clip(shape = CircleShape)
-                                    )
-                                    Text(text = it.second, style = MaterialTheme.typography.bodyMedium)
-                                }
+                                        .size(50.dp)
+                                        .background(color = Color.White, shape = CircleShape)
+                                        .clip(shape = CircleShape)
+                                )
+                                Text(text = it.second, style = MaterialTheme.typography.bodyMedium)
                             }
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Text(text = "Watch Youtube Video", style = MaterialTheme.typography.bodySmall)
-
-                        Spacer(modifier = Modifier.height(12.dp))
                     }
-                }
+                    Spacer(modifier = Modifier.height(12.dp))
 
+                    Text(text = "Watch Youtube Video", style = MaterialTheme.typography.bodySmall)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
+
         }
 
     }
