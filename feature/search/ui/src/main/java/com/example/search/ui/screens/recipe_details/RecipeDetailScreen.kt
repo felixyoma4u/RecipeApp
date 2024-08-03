@@ -89,7 +89,7 @@ fun RecipeDetailScreen(
                 actions = {
                     IconButton(onClick = {
                         uiState.value.data?.let {
-                            onFavoriteClicked(it)
+                            onFavoriteClicked.invoke(it)
                         }
                     }) {
                         Icon(imageVector = Icons.Default.Star, contentDescription = null)
@@ -97,7 +97,7 @@ fun RecipeDetailScreen(
 
                     IconButton(onClick = {
                         uiState.value.data?.let {
-                            onDeleteClicked(it)
+                            onDeleteClicked.invoke(it)
                         }
                     }) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = null)
