@@ -78,4 +78,8 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.dagger.hilt)
     kapt(libs.dagger.kapt)
+
+    implementation(libs.room.ktx)
+    kapt(libs.room.compiler)
+
 }

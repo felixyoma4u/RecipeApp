@@ -5,6 +5,7 @@ sealed class NavigationRoutes(val route: String){
     data object RecipeDetails: NavigationRoutes(route = "/recipe_details/{id}"){
         fun sendId(id: String) = "/recipe_details/${id}"
     }
+    data object Favorite: NavigationRoutes(route = "/favorite")
 }
 
 sealed class NavigationSubGraphRoute(val route: String){

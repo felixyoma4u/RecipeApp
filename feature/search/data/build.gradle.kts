@@ -48,6 +48,12 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson.convertor)
 
+    implementation (libs.okhttp)
+    implementation (libs.logging.interceptor)
+
     implementation(libs.dagger.hilt)
     kapt(libs.dagger.kapt)
+
+    implementation(libs.room.ktx)
+    kapt(libs.room.compiler)
 }

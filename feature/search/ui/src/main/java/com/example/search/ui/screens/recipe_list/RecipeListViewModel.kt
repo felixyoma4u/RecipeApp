@@ -40,6 +40,10 @@ class RecipeListViewModel @Inject constructor(
                     _navigation.send(RecipeList.Navigation.GotoRecipeDetails(event.id))
                 }
             }
+
+            RecipeList.Event.FavoriteScreen -> viewModelScope.launch {
+                _navigation.send(RecipeList.Navigation.GotoFavoriteScreen)
+            }
         }
     }
 
@@ -73,11 +77,13 @@ object RecipeList {
 
     sealed interface Navigation {
         data class GotoRecipeDetails(val id: String) : Navigation
+        data object GotoFavoriteScreen: Navigation
     }
 
     sealed interface Event {
         data class SearchRecipe(val q: String) : Event
         data class GotoRecipeDetails(val id: String) : Event
+        data object FavoriteScreen: Event
     }
 
 }
