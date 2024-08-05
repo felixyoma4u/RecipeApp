@@ -22,9 +22,8 @@ class MediaPlayerImpl : MediaPlayerFeatureApi {
         ) {
 
             composable(route = NavigationRoutes.MediaPlayer.route){
-                val medialPlayerVideoId = it.arguments?.getString("videoId")
+                val medialPlayerVideoId = it.arguments?.getString("video_id")
                 medialPlayerVideoId?.let {videoId->
-
                     MediaPlayerScreen(videoId = videoId)
                 }
             }
