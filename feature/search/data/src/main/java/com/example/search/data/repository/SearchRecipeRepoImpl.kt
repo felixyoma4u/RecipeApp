@@ -47,9 +47,15 @@ class SearchRecipeRepoImpl(
         }
     }
 
-    override suspend fun insertRecipe(recipe: Recipe) = recipeDao.insertRecipe(recipe)
+    override suspend fun insertRecipe(recipe: Recipe) {
+        recipeDao.insertRecipe(recipe)
+    }
 
-    override suspend fun deleteRecipe(recipe: Recipe) = recipeDao.deleteRecipe(recipe)
+    override suspend fun deleteRecipe(recipe: Recipe) {
+        recipeDao.deleteRecipe(recipe)
+    }
 
-    override fun getAllRecipe(): Flow<List<Recipe>> = recipeDao.getAllRecipe()
+    override fun getAllRecipe(): Flow<List<Recipe>> {
+      return  recipeDao.getAllRecipe()
+    }
 }

@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.common.navigation.NavigationSubGraphRoute
-import com.example.search.ui.navigation.SearchFeatureApi
 
 @Composable
 fun RecipeNavigation(modifier: Modifier = Modifier, navigationSubGraphs: NavigationSubGraphs) {
@@ -15,6 +14,11 @@ fun RecipeNavigation(modifier: Modifier = Modifier, navigationSubGraphs: Navigat
         startDestination = NavigationSubGraphRoute.Search.route
     ){
         navigationSubGraphs.searchFeatureApi.registerGraph(
+            navHostController = navHostController,
+            navGraphBuilder = this
+        )
+
+        navigationSubGraphs.mediaPlayerFeatureApi.registerGraph(
             navHostController = navHostController,
             navGraphBuilder = this
         )

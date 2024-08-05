@@ -6,9 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.search.data.local.RecipeDao
 import com.example.search.domain.model.Recipe
+import kotlinx.serialization.Serializable
 
 @Database(entities = [Recipe::class], version = 2, exportSchema = false)
 abstract class AppDatabase: RoomDatabase() {
+
     companion object{
         fun getInstance(context: Context) =
             Room.databaseBuilder(context, AppDatabase::class.java, "recipe_db")

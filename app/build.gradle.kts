@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.dagger)
+    alias(libs.plugins.kotlinx.serialization)
     id("kotlin-kapt")
 }
 
@@ -42,7 +43,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.9"
+        kotlinCompilerExtensionVersion = "1.5.1"
     }
     packaging {
         resources {
@@ -74,10 +75,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    implementation(libs.navigation.compose)
+// dagger
     implementation(libs.dagger.hilt)
     kapt(libs.dagger.kapt)
+    // navigation
+    implementation(libs.androidx.navigation.compose)
+    // serialization
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)

@@ -69,15 +69,15 @@ fun FavoriteScreen(
     val selectedIndex = rememberSaveable {
         mutableIntStateOf(-1)
     }
-    
+
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(key1 = viewModel.navigation) {
         viewModel.navigation.flowWithLifecycle(lifecycleOwner.lifecycle)
-            .collectLatest { navigation->
-                when(navigation){
+            .collectLatest { navigation ->
+                when (navigation) {
                     is FavoriteScreen.Navigation.GotoRecipeDetailsScreen -> {
                         navHostController.navigate(NavigationRoutes.RecipeDetails.sendId(navigation.id))
                     }
@@ -88,14 +88,19 @@ fun FavoriteScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Favorite Recipe", style = MaterialTheme.typography.headlineSmall) },
+                title = {
+                    Text(
+                        text = "Favorite Recipe",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
                 actions = {
                     IconButton(onClick = {
                         showDropDown.value = !showDropDown.value
                     }) {
                         Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
                     }
-                    if(showDropDown.value){
+                    if (showDropDown.value) {
                         DropdownMenu(
                             expanded = showDropDown.value,
                             onDismissRequest = { showDropDown.value = !showDropDown.value }) {
@@ -154,44 +159,52 @@ fun FavoriteScreen(
                 })
         }
     ) {
-        
-        if (uiState.value.isLoading){
-            Box(modifier = Modifier
-                .padding(it)
-                .fillMaxSize(),
-                contentAlignment = Alignment.Center){
+
+        if (uiState.value.isLoading) {
+            Box(
+                modifier = Modifier
+                    .padding(it)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator()
             }
         }
-        
-        if (uiState.value.error !is UiText.Idle){
-            Box(modifier = Modifier
-                .padding(it)
-                .fillMaxSize(), contentAlignment = Alignment.Center){
+
+        if (uiState.value.error !is UiText.Idle) {
+            Box(
+                modifier = Modifier
+                    .padding(it)
+                    .fillMaxSize(), contentAlignment = Alignment.Center
+            ) {
                 Text(text = uiState.value.error.getString())
             }
         }
 
-        uiState.value.data?.let {list->
-            if (list.isEmpty()){
-                Box(modifier = Modifier
-                    .padding(it)
-                    .fillMaxSize(), contentAlignment = Alignment.Center){
+        uiState.value.data?.let { list ->
+            if (list.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .padding(it)
+                        .fillMaxSize(), contentAlignment = Alignment.Center
+                ) {
                     Text(text = "Nothing Found")
                 }
-            }else{
-                LazyColumn(modifier = Modifier
-                    .padding(it)
-                    .fillMaxSize()) {
-                    items(list){
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(it)
+                        .fillMaxSize()
+                ) {
+                    items(list) {
                         Card(
                             modifier = Modifier
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
                                 .clickable { onClick.invoke(it.idMeal) },
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            
-                            Box(modifier = Modifier.fillMaxWidth()){
+
+                            Box(modifier = Modifier.fillMaxWidth()) {
 
                                 AsyncImage(
                                     model = it.strMealThumb,
@@ -201,7 +214,7 @@ fun FavoriteScreen(
                                         .height(250.dp),
                                     contentScale = ContentScale.Crop
                                 )
-                                
+
                                 IconButton(
                                     onClick = {
                                         viewModel.onEvent(
@@ -210,10 +223,13 @@ fun FavoriteScreen(
                                             )
                                         )
                                     },
-                                    modifier = Modifier.background(
-                                        color = Color.White,
-                                        shape = CircleShape
-                                    )
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(12.dp)
+                                        .background(
+                                            color = Color.White,
+                                            shape = CircleShape
+                                        )
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,

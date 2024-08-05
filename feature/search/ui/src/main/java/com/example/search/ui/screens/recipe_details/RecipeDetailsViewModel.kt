@@ -8,6 +8,7 @@ import com.example.search.domain.model.Recipe
 import com.example.search.domain.model.RecipeDetails
 import com.example.search.domain.use_case.DeleteRecipeUseCase
 import com.example.search.domain.use_case.GetRecipeDetailsUseCase
+import com.example.search.domain.use_case.InsertRecipeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +26,7 @@ import javax.inject.Inject
 class RecipeDetailsViewModel @Inject constructor(
     private val getRecipeDetailsUseCase: GetRecipeDetailsUseCase,
     private val deleteRecipeUseCase: DeleteRecipeUseCase,
-    private val insertRecipeUseCase: DeleteRecipeUseCase
+    private val insertRecipeUseCase: InsertRecipeUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(Details.UiState())
@@ -50,6 +51,10 @@ class RecipeDetailsViewModel @Inject constructor(
 
             is Details.Event.InsertRecipe -> {
                 insertRecipeUseCase.invoke(event.recipeDetails.toRecipe()).launchIn(viewModelScope)
+            }
+
+            is Details.Event.GotoMediaPlayer -> viewModelScope.launch {
+                _navigation.send(Details.Navigation.GotoMediaPlayer(event.youtubeUrl))
             }
         }
     }
@@ -95,6 +100,7 @@ object Details {
 
     sealed interface Navigation {
         data object GotoRecipeListScreen : Navigation
+        data class GotoMediaPlayer(val youtubeUrl: String): Navigation
     }
 
     sealed interface Event {
@@ -102,5 +108,6 @@ object Details {
         data class DeleteRecipe(val recipeDetails: RecipeDetails) : Event
         data class InsertRecipe(val recipeDetails: RecipeDetails) : Event
         data object GotoRecipeListScreen : Event
+        data class GotoMediaPlayer(val youtubeUrl: String): Event
     }
 }

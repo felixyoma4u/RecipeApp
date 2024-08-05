@@ -2,6 +2,7 @@ package gaur.himanshu.searchrecipeapp.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.media_player.navigation.MediaPlayerFeatureApi
 import com.example.search.ui.navigation.SearchFeatureApi
 import com.example.search.ui.navigation.SearchFeatureApiImpl
 import dagger.Module
@@ -18,8 +19,11 @@ import javax.inject.Singleton
 object AppModule {
 
     @Provides
-    fun provideNavigationSubGraphs(searchFeatureApi: SearchFeatureApi): NavigationSubGraphs {
-        return NavigationSubGraphs(searchFeatureApi)
+    fun provideNavigationSubGraphs(
+        searchFeatureApi: SearchFeatureApi,
+        mediaPlayerFeatureApi: MediaPlayerFeatureApi
+    ): NavigationSubGraphs {
+        return NavigationSubGraphs(searchFeatureApi, mediaPlayerFeatureApi)
     }
 
     @Provides

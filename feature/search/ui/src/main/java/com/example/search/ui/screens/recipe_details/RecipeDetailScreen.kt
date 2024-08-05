@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -35,15 +34,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.common.navigation.NavigationRoutes
 import com.example.common.utils.UiText
-import com.example.search.domain.model.Recipe
 import com.example.search.domain.model.RecipeDetails
 import kotlinx.coroutines.flow.collectLatest
 
@@ -63,9 +61,13 @@ fun RecipeDetailScreen(
 
     LaunchedEffect(key1 = viewModel.navigation) {
         viewModel.navigation.flowWithLifecycle(lifecycleOwner.lifecycle)
-            .collectLatest {navigation->
-                when(navigation){
+            .collectLatest { navigation ->
+                when (navigation) {
                     Details.Navigation.GotoRecipeListScreen -> navHostController.navigateUp()
+                    is Details.Navigation.GotoMediaPlayer -> {
+                        val videoId = navigation.youtubeUrl.split("v=").last()
+                        navHostController.navigate(NavigationRoutes.MediaPlayer.sendUrl(videoId))
+                    }
                 }
             }
     }
@@ -83,7 +85,7 @@ fun RecipeDetailScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
-                        modifier = Modifier.clickable {onNavigationClicked.invoke()}
+                        modifier = Modifier.clickable { onNavigationClicked.invoke() }
                     )
                 },
                 actions = {
@@ -178,10 +180,17 @@ fun RecipeDetailScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
+                    if (recipeDetails.strYoutube.isNotEmpty()) {
+                        Text(
+                            text = "Watch Youtube Video",
+                            modifier = Modifier.clickable {
+                                viewModel.onEvent(Details.Event.GotoMediaPlayer(recipeDetails.strYoutube))
+                            },
+                            style = MaterialTheme.typography.bodySmall
+                        )
 
-                    Text(text = "Watch Youtube Video", style = MaterialTheme.typography.bodySmall)
-
-                    Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
 

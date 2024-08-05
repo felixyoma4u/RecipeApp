@@ -9,7 +9,6 @@ import androidx.navigation.navigation
 import com.example.common.navigation.FeatureApi
 import com.example.common.navigation.NavigationRoutes
 import com.example.common.navigation.NavigationSubGraphRoute
-import com.example.search.domain.model.RecipeDetails
 import com.example.search.ui.screens.favorite.FavoriteScreen
 import com.example.search.ui.screens.favorite.FavoriteViewModel
 import com.example.search.ui.screens.recipe_details.Details
@@ -31,6 +30,7 @@ class SearchFeatureApiImpl : SearchFeatureApi {
             route = NavigationSubGraphRoute.Search.route,
             startDestination = NavigationRoutes.RecipeList.route
         ) {
+
             composable(route = NavigationRoutes.RecipeList.route) {
                 val viewModel = hiltViewModel<RecipeListViewModel>()
                 RecipeListScreen(
@@ -43,10 +43,10 @@ class SearchFeatureApiImpl : SearchFeatureApi {
 
             composable(route = NavigationRoutes.RecipeDetails.route) {
                 val viewModel = hiltViewModel<RecipeDetailsViewModel>()
-                val mealId = it.arguments?.getString("id")
+                val mealId = it.arguments?.getString("mealId")
                 LaunchedEffect(key1 = mealId) {
-                    mealId?.let {
-                        viewModel.onEvent(Details.Event.FetchDetails(it))
+                    mealId?.let { id ->
+                        viewModel.onEvent(Details.Event.FetchDetails(id))
                     }
                 }
                 RecipeDetailScreen(
@@ -69,7 +69,7 @@ class SearchFeatureApiImpl : SearchFeatureApi {
                 FavoriteScreen(
                     navHostController = navHostController,
                     viewModel = viewModel,
-                    onClick = {mealId->
+                    onClick = { mealId ->
                         viewModel.onEvent(FavoriteScreen.Event.GotoDetails(mealId))
                     }
                 )
