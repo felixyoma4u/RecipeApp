@@ -1,5 +1,6 @@
 package gaur.himanshu.searchrecipeapp
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var navigationSubGraphs: NavigationSubGraphs
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge()
@@ -32,6 +34,8 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.safeContentPadding()) {
                     RecipeNavigation(navigationSubGraphs = navigationSubGraphs)
                 }
+             val apiKey =  BuildConfig.apiKeySafe
+                println("API Key: $apiKey")
             }
         }
     }

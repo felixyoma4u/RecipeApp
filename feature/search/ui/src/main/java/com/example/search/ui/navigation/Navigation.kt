@@ -2,6 +2,7 @@ package com.example.search.ui.navigation
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -33,12 +34,29 @@ class SearchFeatureApiImpl : SearchFeatureApi {
 
             composable(route = NavigationRoutes.RecipeList.route) {
                 val viewModel = hiltViewModel<RecipeListViewModel>()
+                val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+                val navigation = viewModel.navigation
                 RecipeListScreen(
-                    viewModel = viewModel,
-                    navHostController = navHostController
-                ) { mealId ->
-                    viewModel.onEvent(RecipeList.Event.GotoRecipeDetails(mealId))
-                }
+                    navigation = navigation,
+                    uiState = uiState.value,
+                    navHostController = navHostController,
+                    onEvent = { event ->
+                        when (event) {
+                            RecipeList.Event.FavoriteScreen -> viewModel.onEvent(RecipeList.Event.FavoriteScreen)
+                            is RecipeList.Event.GotoRecipeDetails -> viewModel.onEvent(
+                                RecipeList.Event.GotoRecipeDetails(
+                                    event.id
+                                )
+                            )
+
+                            is RecipeList.Event.SearchRecipe -> viewModel.onEvent(
+                                RecipeList.Event.SearchRecipe(
+                                    event.q
+                                )
+                            )
+                        }
+                    }
+                )
             }
 
             composable(route = NavigationRoutes.RecipeDetails.route) {
@@ -64,7 +82,7 @@ class SearchFeatureApiImpl : SearchFeatureApi {
                 )
             }
 
-            composable(route = NavigationRoutes.Favorite.route){
+            composable(route = NavigationRoutes.Favorite.route) {
                 val viewModel = hiltViewModel<FavoriteViewModel>()
                 FavoriteScreen(
                     navHostController = navHostController,

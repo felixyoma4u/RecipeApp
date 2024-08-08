@@ -39,30 +39,30 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.common.navigation.NavigationRoutes
 import com.example.common.utils.UiText
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RecipeListScreen(
     modifier: Modifier = Modifier,
-    viewModel: RecipeListViewModel,
+    navigation: Flow<RecipeList.Navigation>,
+    uiState: RecipeList.UiState,
     navHostController: NavHostController,
-    onClick: (String) -> Unit
+    onEvent: (RecipeList.Event) -> Unit
 ) {
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val query = rememberSaveable {
         mutableStateOf("")
     }
     val lifeCycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(key1 = viewModel.navigation) {
-        viewModel.navigation.flowWithLifecycle(lifeCycleOwner.lifecycle)
+    LaunchedEffect(key1 = navigation) {
+        navigation.flowWithLifecycle(lifeCycleOwner.lifecycle)
             .collectLatest {
                 when (it) {
                     is RecipeList.Navigation.GotoRecipeDetails -> {
@@ -79,7 +79,7 @@ fun RecipeListScreen(
         floatingActionButton =
         {
             FloatingActionButton(onClick = {
-                viewModel.onEvent(RecipeList.Event.FavoriteScreen)
+                onEvent(RecipeList.Event.FavoriteScreen)
             }) {
                 Icon(imageVector = Icons.Default.Star, contentDescription = null)
             }
@@ -94,7 +94,7 @@ fun RecipeListScreen(
                 },
                 value = query.value, onValueChange = {
                     query.value = it
-                    viewModel.onEvent(RecipeList.Event.SearchRecipe(query.value))
+                    onEvent(RecipeList.Event.SearchRecipe(query.value))
 
                 },
                 colors = TextFieldDefaults.colors(
@@ -107,7 +107,7 @@ fun RecipeListScreen(
             )
         }
     ) {
-        if (uiState.value.isLoading) {
+        if (uiState.isLoading) {
             Box(
                 modifier = Modifier
                     .padding(it)
@@ -118,18 +118,18 @@ fun RecipeListScreen(
             }
         }
 
-        if (uiState.value.error !is UiText.Idle) {
+        if (uiState.error !is UiText.Idle) {
             Box(
                 modifier = Modifier
                     .padding(it)
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = uiState.value.error.getString())
+                Text(text = uiState.error.getString())
             }
         }
 
-        uiState.value.data?.let { list ->
+        uiState.data?.let { list ->
             LazyColumn(
                 modifier = Modifier
                     .padding(it)
@@ -139,7 +139,9 @@ fun RecipeListScreen(
                     Card(
                         modifier = Modifier
                             .padding(horizontal = 12.dp, vertical = 4.dp)
-                            .clickable { onClick.invoke(it.idMeal) },
+                            .clickable {
+                                onEvent(RecipeList.Event.GotoRecipeDetails(it.idMeal))
+                            },
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         AsyncImage(
