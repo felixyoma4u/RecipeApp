@@ -61,6 +61,8 @@ class SearchFeatureApiImpl : SearchFeatureApi {
 
             composable(route = NavigationRoutes.RecipeDetails.route) {
                 val viewModel = hiltViewModel<RecipeDetailsViewModel>()
+                val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+                val navigation = viewModel.navigation
                 val mealId = it.arguments?.getString("id")
                 LaunchedEffect(key1 = mealId) {
                     mealId?.let { id ->
@@ -68,27 +70,77 @@ class SearchFeatureApiImpl : SearchFeatureApi {
                     }
                 }
                 RecipeDetailScreen(
-                    viewModel = viewModel,
-                    onNavigationClicked = {
-                        viewModel.onEvent(Details.Event.GotoRecipeListScreen)
-                    },
-                    onDeleteClicked = {
-                        viewModel.onEvent(Details.Event.DeleteRecipe(it))
-                    },
-                    onFavoriteClicked = {
-                        viewModel.onEvent(Details.Event.InsertRecipe(it))
-                    },
-                    navHostController = navHostController
+                    navHostController = navHostController,
+                    uiState = uiState.value,
+                    navigation = navigation,
+                    onEvent = { event ->
+                        when (event) {
+                            is Details.Event.DeleteRecipe -> viewModel.onEvent(
+                                Details.Event.DeleteRecipe(
+                                    event.recipeDetails
+                                )
+                            )
+
+                            is Details.Event.FetchDetails -> viewModel.onEvent(
+                                Details.Event.FetchDetails(
+                                    event.id
+                                )
+                            )
+
+                            is Details.Event.GotoMediaPlayer -> viewModel.onEvent(
+                                Details.Event.GotoMediaPlayer(
+                                    event.youtubeUrl
+                                )
+                            )
+
+                            Details.Event.GotoRecipeListScreen -> viewModel.onEvent(Details.Event.GotoRecipeListScreen)
+                            is Details.Event.InsertRecipe -> viewModel.onEvent(
+                                Details.Event.InsertRecipe(
+                                    event.recipeDetails
+                                )
+                            )
+                        }
+                    }
                 )
             }
 
             composable(route = NavigationRoutes.Favorite.route) {
                 val viewModel = hiltViewModel<FavoriteViewModel>()
+                val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+                val navigation = viewModel.navigation
                 FavoriteScreen(
                     navHostController = navHostController,
-                    viewModel = viewModel,
-                    onClick = { mealId ->
-                        viewModel.onEvent(FavoriteScreen.Event.GotoDetails(mealId))
+                    uiState = uiState.value,
+                    navigation = navigation,
+                    onEvent = { event ->
+                        when (event) {
+                            FavoriteScreen.Event.AlphabeticalSort -> viewModel.onEvent(
+                                FavoriteScreen.Event.AlphabeticalSort
+                            )
+
+                            is FavoriteScreen.Event.DeleteRecipe -> viewModel.onEvent(
+                                FavoriteScreen.Event.DeleteRecipe(
+                                    event.recipe
+                                )
+                            )
+
+                            is FavoriteScreen.Event.GotoDetails -> viewModel.onEvent(
+                                FavoriteScreen.Event.GotoDetails(
+                                    event.id
+                                )
+                            )
+
+                            FavoriteScreen.Event.LessIngredientSort -> viewModel.onEvent(
+                                FavoriteScreen.Event.LessIngredientSort
+                            )
+
+                            FavoriteScreen.Event.ResetSort -> viewModel.onEvent(FavoriteScreen.Event.ResetSort)
+                            is FavoriteScreen.Event.ShowDetails -> viewModel.onEvent(
+                                FavoriteScreen.Event.ShowDetails(
+                                    event.id
+                                )
+                            )
+                        }
                     }
                 )
             }

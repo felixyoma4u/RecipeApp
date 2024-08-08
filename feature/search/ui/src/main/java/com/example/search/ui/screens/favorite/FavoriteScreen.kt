@@ -45,21 +45,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.common.navigation.NavigationRoutes
 import com.example.common.utils.UiText
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FavoriteScreen(
-    modifier: Modifier = Modifier,
     navHostController: NavHostController,
-    viewModel: FavoriteViewModel,
-    onClick: (String) -> Unit
+    uiState: FavoriteScreen.UiState,
+    navigation: Flow<FavoriteScreen.Navigation>,
+    onEvent: (FavoriteScreen.Event) -> Unit
 ) {
 
     val showDropDown = rememberSaveable {
@@ -70,12 +70,11 @@ fun FavoriteScreen(
         mutableIntStateOf(-1)
     }
 
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(key1 = viewModel.navigation) {
-        viewModel.navigation.flowWithLifecycle(lifecycleOwner.lifecycle)
+    LaunchedEffect(key1 = navigation) {
+        navigation.flowWithLifecycle(lifecycleOwner.lifecycle)
             .collectLatest { navigation ->
                 when (navigation) {
                     is FavoriteScreen.Navigation.GotoRecipeDetailsScreen -> {
@@ -107,16 +106,16 @@ fun FavoriteScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "Alphabetical") },
                                 onClick = {
-                                    selectedIndex.value = 0
+                                    selectedIndex.intValue = 0
                                     showDropDown.value = !showDropDown.value
-                                    viewModel.onEvent(FavoriteScreen.Event.AlphabeticalSort)
+                                    onEvent(FavoriteScreen.Event.AlphabeticalSort)
                                 }, leadingIcon = {
                                     RadioButton(
-                                        selected = selectedIndex.value == 0,
+                                        selected = selectedIndex.intValue == 0,
                                         onClick = {
-                                            selectedIndex.value = 0
+                                            selectedIndex.intValue = 0
                                             showDropDown.value = !showDropDown.value
-                                            viewModel.onEvent(FavoriteScreen.Event.AlphabeticalSort)
+                                            onEvent(FavoriteScreen.Event.AlphabeticalSort)
                                         })
                                 }
                             )
@@ -124,16 +123,16 @@ fun FavoriteScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "Less Ingredient") },
                                 onClick = {
-                                    selectedIndex.value = 1
+                                    selectedIndex.intValue = 1
                                     showDropDown.value = !showDropDown.value
-                                    viewModel.onEvent(FavoriteScreen.Event.LessIngredientSort)
+                                    onEvent(FavoriteScreen.Event.LessIngredientSort)
                                 }, leadingIcon = {
                                     RadioButton(
-                                        selected = selectedIndex.value == 1,
+                                        selected = selectedIndex.intValue == 1,
                                         onClick = {
-                                            selectedIndex.value = 1
+                                            selectedIndex.intValue = 1
                                             showDropDown.value = !showDropDown.value
-                                            viewModel.onEvent(FavoriteScreen.Event.LessIngredientSort)
+                                            onEvent(FavoriteScreen.Event.LessIngredientSort)
                                         })
                                 }
                             )
@@ -141,16 +140,16 @@ fun FavoriteScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "Reset ") },
                                 onClick = {
-                                    selectedIndex.value = 2
+                                    selectedIndex.intValue = 2
                                     showDropDown.value = !showDropDown.value
-                                    viewModel.onEvent(FavoriteScreen.Event.ResetSort)
+                                    onEvent(FavoriteScreen.Event.ResetSort)
                                 }, leadingIcon = {
                                     RadioButton(
-                                        selected = selectedIndex.value == 2,
+                                        selected = selectedIndex.intValue == 2,
                                         onClick = {
-                                            selectedIndex.value = 2
+                                            selectedIndex.intValue = 2
                                             showDropDown.value = !showDropDown.value
-                                            viewModel.onEvent(FavoriteScreen.Event.ResetSort)
+                                            onEvent(FavoriteScreen.Event.ResetSort)
                                         })
                                 }
                             )
@@ -160,7 +159,7 @@ fun FavoriteScreen(
         }
     ) {
 
-        if (uiState.value.isLoading) {
+        if (uiState.isLoading) {
             Box(
                 modifier = Modifier
                     .padding(it)
@@ -171,17 +170,17 @@ fun FavoriteScreen(
             }
         }
 
-        if (uiState.value.error !is UiText.Idle) {
+        if (uiState.error !is UiText.Idle) {
             Box(
                 modifier = Modifier
                     .padding(it)
                     .fillMaxSize(), contentAlignment = Alignment.Center
             ) {
-                Text(text = uiState.value.error.getString())
+                Text(text = uiState.error.getString())
             }
         }
 
-        uiState.value.data?.let { list ->
+        uiState.data?.let { list ->
             if (list.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -200,7 +199,8 @@ fun FavoriteScreen(
                         Card(
                             modifier = Modifier
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
-                                .clickable { onClick.invoke(it.idMeal) },
+                                .clickable {
+                                    onEvent(FavoriteScreen.Event.GotoDetails(it.idMeal)) },
                             shape = RoundedCornerShape(12.dp)
                         ) {
 
@@ -217,7 +217,7 @@ fun FavoriteScreen(
 
                                 IconButton(
                                     onClick = {
-                                        viewModel.onEvent(
+                                        onEvent(
                                             FavoriteScreen.Event.DeleteRecipe(
                                                 it
                                             )

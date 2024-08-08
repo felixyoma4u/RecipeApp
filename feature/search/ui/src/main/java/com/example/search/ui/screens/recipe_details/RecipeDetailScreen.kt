@@ -36,31 +36,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.common.navigation.NavigationRoutes
 import com.example.common.utils.UiText
-import com.example.search.domain.model.RecipeDetails
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeDetailScreen(
-    modifier: Modifier = Modifier,
-    viewModel: RecipeDetailsViewModel,
     navHostController: NavHostController,
-    onNavigationClicked: () -> Unit,
-    onDeleteClicked: (RecipeDetails) -> Unit,
-    onFavoriteClicked: (RecipeDetails) -> Unit
+    uiState: Details.UiState,
+    navigation: Flow<Details.Navigation>,
+    onEvent: (Details.Event) -> Unit
 ) {
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(key1 = viewModel.navigation) {
-        viewModel.navigation.flowWithLifecycle(lifecycleOwner.lifecycle)
+    LaunchedEffect(key1 = navigation) {
+        navigation.flowWithLifecycle(lifecycleOwner.lifecycle)
             .collectLatest { navigation ->
                 when (navigation) {
                     Details.Navigation.GotoRecipeListScreen -> navHostController.navigateUp()
@@ -77,7 +73,7 @@ fun RecipeDetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = uiState.value.data?.strMeal.toString(),
+                        text = uiState.data?.strMeal.toString(),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 },
@@ -85,21 +81,23 @@ fun RecipeDetailScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
-                        modifier = Modifier.clickable { onNavigationClicked.invoke() }
+                        modifier = Modifier.clickable {
+                            onEvent(Details.Event.GotoRecipeListScreen)
+                        }
                     )
                 },
                 actions = {
                     IconButton(onClick = {
-                        uiState.value.data?.let {
-                            onFavoriteClicked.invoke(it)
+                        uiState.data?.let {
+                            onEvent(Details.Event.InsertRecipe(it))
                         }
                     }) {
                         Icon(imageVector = Icons.Default.Star, contentDescription = null)
                     }
 
                     IconButton(onClick = {
-                        uiState.value.data?.let {
-                            onDeleteClicked.invoke(it)
+                        uiState.data?.let {
+                            onEvent(Details.Event.DeleteRecipe(it))
                         }
                     }) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = null)
@@ -108,7 +106,7 @@ fun RecipeDetailScreen(
             )
         }
     ) {
-        if (uiState.value.isLoading) {
+        if (uiState.isLoading) {
             Box(
                 modifier = Modifier
                     .padding(it)
@@ -118,17 +116,17 @@ fun RecipeDetailScreen(
             }
         }
 
-        if (uiState.value.error !is UiText.Idle) {
+        if (uiState.error !is UiText.Idle) {
             Box(
                 modifier = Modifier
                     .padding(it)
                     .fillMaxSize(), contentAlignment = Alignment.Center
             ) {
-                Text(text = uiState.value.error.getString())
+                Text(text = uiState.error.getString())
             }
         }
 
-        uiState.value.data?.let { recipeDetails ->
+        uiState.data?.let { recipeDetails ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -184,7 +182,7 @@ fun RecipeDetailScreen(
                         Text(
                             text = "Watch Youtube Video",
                             modifier = Modifier.clickable {
-                                viewModel.onEvent(Details.Event.GotoMediaPlayer(recipeDetails.strYoutube))
+                                onEvent(Details.Event.GotoMediaPlayer(recipeDetails.strYoutube))
                             },
                             style = MaterialTheme.typography.bodySmall
                         )

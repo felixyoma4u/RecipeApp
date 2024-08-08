@@ -50,7 +50,6 @@ import kotlinx.coroutines.flow.collectLatest
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RecipeListScreen(
-    modifier: Modifier = Modifier,
     navigation: Flow<RecipeList.Navigation>,
     uiState: RecipeList.UiState,
     navHostController: NavHostController,
