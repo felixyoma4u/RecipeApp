@@ -15,13 +15,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -48,7 +51,6 @@ import com.example.search.domain.model.Recipe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RecipeListScreen(
     navigation: Flow<RecipeList.Navigation>,
@@ -148,27 +150,52 @@ fun RecipeListScreen(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RecipeListItem(
+ fun RecipeListItem(
     modifier: Modifier = Modifier,
     recipe: Recipe,
-    onClick: () -> Unit
+    showDeleteIcon: Boolean = false,
+    onDeleteIconClick: () -> Unit = {},
+    onRecipeClick: () -> Unit
 ) {
     Card(
         modifier = modifier
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .clickable {
-                onClick.invoke()
+                onRecipeClick.invoke()
             },
         shape = RoundedCornerShape(12.dp)
     ) {
-        AsyncImage(
-            model = recipe.strMealThumb,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp),
-            contentScale = ContentScale.Crop
-        )
+        Box(modifier = Modifier.fillMaxWidth()) {
+
+            AsyncImage(
+                model = recipe.strMealThumb,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp),
+                contentScale = ContentScale.Crop
+            )
+            if (showDeleteIcon){
+                IconButton(
+                    onClick = {
+                        onDeleteIconClick.invoke()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp)
+                        .background(
+                            color = Color.White,
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = Color.Red
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(12.dp))
 
