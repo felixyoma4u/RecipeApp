@@ -83,59 +83,37 @@ fun FavoriteScreen(
                     if (showDropDown.value) {
                         DropdownMenu(
                             expanded = showDropDown.value,
-                            onDismissRequest = { showDropDown.value = !showDropDown.value }) {
-                            DropdownMenuItem(
-                                text = { Text(text = "Alphabetical") },
-                                onClick = {
-                                    selectedIndex.intValue = 0
-                                    showDropDown.value = !showDropDown.value
-                                    onEvent(FavoriteScreen.Event.AlphabeticalSort)
-                                }, leadingIcon = {
-                                    RadioButton(
-                                        selected = selectedIndex.intValue == 0,
-                                        onClick = {
-                                            selectedIndex.intValue = 0
-                                            showDropDown.value = !showDropDown.value
-                                            onEvent(FavoriteScreen.Event.AlphabeticalSort)
-                                        })
-                                }
+                            onDismissRequest = { showDropDown.value = false }
+                        ) {
+                            val menuItems = listOf(
+                                "Alphabetical" to FavoriteScreen.Event.AlphabeticalSort,
+                                "Less Ingredient" to FavoriteScreen.Event.LessIngredientSort,
+                                "Reset" to FavoriteScreen.Event.ResetSort
                             )
 
-                            DropdownMenuItem(
-                                text = { Text(text = "Less Ingredient") },
-                                onClick = {
-                                    selectedIndex.intValue = 1
-                                    showDropDown.value = !showDropDown.value
-                                    onEvent(FavoriteScreen.Event.LessIngredientSort)
-                                }, leadingIcon = {
-                                    RadioButton(
-                                        selected = selectedIndex.intValue == 1,
-                                        onClick = {
-                                            selectedIndex.intValue = 1
-                                            showDropDown.value = !showDropDown.value
-                                            onEvent(FavoriteScreen.Event.LessIngredientSort)
-                                        })
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(text = "Reset ") },
-                                onClick = {
-                                    selectedIndex.intValue = 2
-                                    showDropDown.value = !showDropDown.value
-                                    onEvent(FavoriteScreen.Event.ResetSort)
-                                }, leadingIcon = {
-                                    RadioButton(
-                                        selected = selectedIndex.intValue == 2,
-                                        onClick = {
-                                            selectedIndex.intValue = 2
-                                            showDropDown.value = !showDropDown.value
-                                            onEvent(FavoriteScreen.Event.ResetSort)
-                                        })
-                                }
-                            )
+                            menuItems.forEachIndexed { index, item ->
+                                DropdownMenuItem(
+                                    text = { Text(text = item.first) },
+                                    onClick = {
+                                        selectedIndex.intValue = index
+                                        showDropDown.value = false
+                                        onEvent(item.second)
+                                    },
+                                    leadingIcon = {
+                                        RadioButton(
+                                            selected = selectedIndex.intValue == index,
+                                            onClick = {
+                                                selectedIndex.intValue = index
+                                                showDropDown.value = false
+                                                onEvent(item.second)
+                                            }
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
+
                 })
         }
     ) {
