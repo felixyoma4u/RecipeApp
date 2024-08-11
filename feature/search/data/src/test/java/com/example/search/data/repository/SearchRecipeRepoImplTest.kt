@@ -2,10 +2,13 @@ package com.example.search.data.repository
 
 import com.example.search.data.local.RecipeDao
 import com.example.search.data.mappers.toDomainRecipe
+import com.example.search.data.mappers.toDomainRecipeDetails
 import com.example.search.data.model.RecipeDTO
 import com.example.search.data.model.RecipeResponse
+import com.example.search.data.model.RecipeResponseDetail
 import com.example.search.data.remote.SearchApiService
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody
 import org.junit.Test
@@ -17,6 +20,9 @@ class SearchRecipeRepoImplTest {
 
     private val searchApiService: SearchApiService = mock()
     private val recipeDao: RecipeDao = mock()
+
+    private val errorMessage = "Something went wrong"
+    private val exceptionMessage = "error"
 
     @Test
     fun `test success for getRecipe api call`() = runTest {
@@ -35,10 +41,9 @@ class SearchRecipeRepoImplTest {
             .thenReturn(Response.success(200, RecipeResponse()))
 
         val repo = SearchRecipeRepoImpl(searchApiService, recipeDao)
-
         val response = repo.getRecipes("chicken")
-        val message = "Something went wrong"
-        assertEquals(message, response.exceptionOrNull()?.message)
+
+        assertEquals(errorMessage, response.exceptionOrNull()?.message)
     }
 
     @Test
@@ -48,20 +53,85 @@ class SearchRecipeRepoImplTest {
 
         val repo = SearchRecipeRepoImpl(searchApiService, recipeDao)
         val response = repo.getRecipes("chicken")
-        val message = "Something went wrong"
-        assertEquals(message, response.exceptionOrNull()?.message)
+
+        assertEquals(errorMessage, response.exceptionOrNull()?.message)
     }
 
     @Test
-    fun `test getrecipe throw exception`() = runTest {
+    fun `test get recipe throw exception`() = runTest {
         `when`(searchApiService.getRecipe("chicken"))
             .thenThrow(RuntimeException("error"))
 
         val repo = SearchRecipeRepoImpl(searchApiService, recipeDao)
         val response = repo.getRecipes("chicken")
-        val message = "error"
-        assertEquals(message, response.exceptionOrNull()?.message)
+        
+        assertEquals(exceptionMessage, response.exceptionOrNull()?.message)
     }
+
+    @Test
+    fun `test success for getRecipeDetails api call`() = runTest {
+        `when`(searchApiService.getRecipeDetail("id"))
+            .thenReturn(Response.success(200, getRecipeDetails()))
+
+        val repo = SearchRecipeRepoImpl(searchApiService, recipeDao)
+        val response = repo.getRecipeDetails("id")
+
+        assertEquals(getRecipeDetails().meals?.first()?.toDomainRecipeDetails(), response.getOrThrow())
+
+    }
+
+    @Test
+    fun `test null meal from backend getRecipeDetails api call`() = runTest {
+        `when`(searchApiService.getRecipeDetail("id"))
+            .thenReturn(Response.success(200, RecipeResponseDetail()))
+
+        val repo = SearchRecipeRepoImpl(searchApiService, recipeDao)
+        val response = repo.getRecipeDetails("id")
+
+        assertEquals(errorMessage, response.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun `test failure from getRecipeDetails api call`() = runTest {
+        `when`(searchApiService.getRecipeDetail("id"))
+            .thenReturn(Response.error(404, ResponseBody.create(null, "")))
+
+        val repo = SearchRecipeRepoImpl(searchApiService, recipeDao)
+        val response = repo.getRecipeDetails("id")
+
+        assertEquals(errorMessage, response.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun `test get recipe details throw exception`() = runTest {
+        `when`(searchApiService.getRecipeDetail("id"))
+            .thenThrow(RuntimeException("error"))
+
+        val repo = SearchRecipeRepoImpl(searchApiService, recipeDao)
+        val response = repo.getRecipeDetails("id")
+
+        assertEquals(exceptionMessage, response.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun `test insert recipe`() = runTest {
+
+        val repo = SearchRecipeRepoImpl(searchApiService, FakeRecipeDao())
+        val recipe = getRecipeResponse().meals?.toDomainRecipe()?.first()
+        repo.insertRecipe(recipe!!)
+
+        assertEquals(recipe, repo.getAllRecipe().first().first())
+    }
+
+    @Test
+    fun `test delete recipe`() = runTest {
+        val repo = SearchRecipeRepoImpl(searchApiService, FakeRecipeDao())
+        val recipe = getRecipeResponse().meals?.toDomainRecipe()?.first()
+        repo.insertRecipe(recipe!!)
+        repo.deleteRecipe(recipe)
+        assertEquals(0, repo.getAllRecipe().first().size)
+    }
+
 
 }
 
@@ -124,6 +194,14 @@ private fun getRecipeResponse(): RecipeResponse {
                 strDrinkAlternate = null,
                 strImageSource = "empty"
             )
+        )
+    )
+}
+
+private fun getRecipeDetails(): RecipeResponseDetail {
+    return RecipeResponseDetail(
+        meals = listOf(
+            getRecipeResponse().meals?.first()!!
         )
     )
 }
