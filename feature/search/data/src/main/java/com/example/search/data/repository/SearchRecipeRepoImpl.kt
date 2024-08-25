@@ -7,7 +7,10 @@ import com.example.search.data.remote.SearchApiService
 import com.example.search.domain.model.RecipeDetails
 import com.example.search.domain.model.Recipe
 import com.example.search.domain.repository.SearchRecipeRepository
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
+import kotlin.coroutines.coroutineContext
 
 class SearchRecipeRepoImpl(
     private val searchApiService: SearchApiService,
@@ -26,6 +29,7 @@ class SearchRecipeRepoImpl(
                 Result.failure(Exception("Something went wrong"))
             }
         } catch (e: Exception) {
+            coroutineContext.ensureActive()
             Result.failure(e)
         }
     }
@@ -43,6 +47,7 @@ class SearchRecipeRepoImpl(
                 Result.failure(Exception("Something went wrong"))
             }
         } catch (e: Exception) {
+            coroutineContext.ensureActive()
             Result.failure(e)
         }
     }
